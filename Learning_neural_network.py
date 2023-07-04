@@ -36,7 +36,7 @@ model = keras.Sequential([
 
 optim = keras.optimizers.AdamW()
 
-#Оптимизация по Adam с критерием качества - категориальная кросс-энтропия
+#Оптимизация по AdamW с критерием качества - категориальная кросс-энтропия
 model.compile(optimizer=optim,
               loss="categorical_crossentropy",
               metrics=["accuracy"]) #Уменьшение процента ошибки
