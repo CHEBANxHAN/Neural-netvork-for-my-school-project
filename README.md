@@ -5,3 +5,5 @@
 I created this neural network out of boredom. But I decided to make it my school project. Lerning_neural_network.py trains a convolutional neural network using MNIST data. you can improve
 the quality of the neural network by changing it. Draw_your_simvols.py tests the neural network itself. You draw a number and get a response from the neural network. Learn.h5 has a ready-made, trained neural network, but
 it is not very efficient, so as mentioned above, you can change it.
+
+Artoym Rys
