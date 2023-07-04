@@ -1,76 +1,67 @@
-import Neural_Network
+from tkinter import*
+from random import*
+from tkinter import messagebox
+from PIL import Image, ImageDraw, ImageGrab
 import numpy as np
-import matplotlib.pyplot
+from numpy import asarray
+from keras.models import load_model
+import win32gui as wn
 
-#Количество узлов между слоями
-ind = 784
-hnd = 200
-ond = 10
+model = load_model("learn.h5")
 
-#Коэффициент обучения
-lr = 0.2
-#Создание объекта
-n = Neural_Network.neuralNetwork(ind, hnd, ond, lr)
+def predict_digit(img):
+    # изменение рзмера изобржений на 28x28
+    img = img.resize((28,28))
+    # конвертируем rgb в grayscale
+    img = img.convert('L')
+    img = np.array(img)
+    # изменение размерности для поддержки модели ввода и нормализации
+    img = img.reshape(1,28,28,1)
+    img = img/255.0
+    # предстказание цифры
+    res = model.predict([img])[0]
+    return np.argmax(res)
 
-#Загрузка списка
-train_data_file = open("C:/Users/vikto/Neural Network/mnist_dataset/mnist_train_100.csv", "r")
-train_data_list = train_data_file.readlines()
-train_data_file.close()
+def draw(event):
+    x1, y1 = (event.x - brush_size), (event.y - brush_size)
+    x2, y2 = (event.x + brush_size), (event.y + brush_size)
+    canv.create_oval(x1, y1, x2, y2, fill=color, width=0)
 
-#Тренировка нейронных сетей с эпохами
-epochs = 5
+    
+otv = True
+def delete():
+    global otv
+    if otv: 
+        canv.delete("all")
 
-for e in range(epochs):
-    #Создание тренировочного набора
-    for record in train_data_list:
-        #Список с данными из файла
-        all_value = record.split(",")
-        #Изменение значений списка в зависимости от сигмоиды
-        inputs = (np.asfarray(all_value[1:]) / 255.0 * 0.99) + 0.01
-        #Создание списка для маркеров
-        targets = np.zeros(ond) + 0.01
-        #Принимаем целевое значение 0.99 для данной записи
-        targets[int(all_value[0])] = 0.99
-        #Обучение нейронной сети
-        n.train(inputs, targets)
-    pass
-        
+def hun():
+    hwd = canv.winfo_id()
+    rect = wn.GetWindowRect(hwd)
+    im = ImageGrab.grab(rect)
+    setc = predict_digit(im)
+    txt = str(setc)
+    tm["text"] = txt
+    tm.update()
+            
+root = Tk()
+root.geometry("1000x500")
+root.resizable(False, False)
 
-#Журнал оценок работы сети
-scorecard = []
+canv = Canvas(root, bg="white", width=500, height=500)
+canv.pack(side=LEFT)
 
-#Тестирование нейронной сети
+tm = Label(root, text="", font=("Arial", 48))
+tm.pack(side=RIGHT)
 
-test_data_file = open("C:/Users/vikto/Neural Network/mnist_dataset/mnist_test_10.csv", "r")
-test_data_list = test_data_file.readlines()
-test_data_file.close()
+brush_size = 20
+color = "black"
 
-#Создание тестого набора данных
-for records in test_data_list:
-    #Список с данными из файла
-    all_values = records.split(",")
-    true_ans = int(all_values[0])
-    print(f"{true_ans} -- истинный маркер")
-    #Изменение значений списка в зависимости от сигмоиды
-    scaled_input = (np.asfarray(all_values[1:]) / 255.0 * 0.99) + 0.01
-    #Опрос сети
-    out = n.query(scaled_input)
-    #Получение ответа сети
-    lb = np.argmax(out)
-    print(f"{lb} -- ответ сети")
-    #Оценка ответа сети
-    if lb == true_ans:
-        scorecard.append(1)
-    else:
-        scorecard.append(0)
+bt_res = Button(root, text="Delete", padx="5", pady="3", command=delete)
+bt_res.pack(side=BOTTOM)
 
-    image_array = np.asfarray(all_values[1:]).reshape((28,28))
-    matplotlib.pyplot.imshow(image_array, cmap="Greys", interpolation="None")
-    matplotlib.pyplot.show()
-    pass
+bt_sev = Button(root, text="Recognize", padx="5", pady="3", command=hun)
+bt_sev.pack(side=BOTTOM)
 
-print(scorecard)
+canv.bind("<B1-Motion>", draw)
 
-#Расчёт эффективности нейронной сети
-score_data = np.asarray(scorecard)
-print(f"Эффективность - {score_data.sum() / score_data.size * 100} %")
+root.mainloop()
