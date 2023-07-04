@@ -1,3 +1,5 @@
+##Shrodinger's cat
+
 from tkinter import*
 from random import*
 from tkinter import messagebox
