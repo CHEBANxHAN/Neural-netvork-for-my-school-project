@@ -1,4 +1,5 @@
 ##Shrodinger's cat
+##Artoym Rys
 
 from tkinter import*
 from random import*
@@ -11,6 +12,7 @@ import win32gui as wn
 
 model = load_model("learn.h5")
 
+#Функция предсказания цифр
 def predict_digit(img):
     # изменение рзмера изобржений на 28x28
     img = img.resize((28,28))
@@ -24,18 +26,21 @@ def predict_digit(img):
     res = model.predict([img])[0]
     return np.argmax(res)
 
+#Функция рисования
 def draw(event):
     x1, y1 = (event.x - brush_size), (event.y - brush_size)
     x2, y2 = (event.x + brush_size), (event.y + brush_size)
     canv.create_oval(x1, y1, x2, y2, fill=color, width=0)
 
     
+#Функция очищения холста
 otv = True
 def delete():
     global otv
     if otv: 
         canv.delete("all")
 
+#Функция получения изображения и вывод текста
 def hun():
     hwd = canv.winfo_id()
     rect = wn.GetWindowRect(hwd)
